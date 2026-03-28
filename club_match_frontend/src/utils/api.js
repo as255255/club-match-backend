@@ -1,8 +1,8 @@
 import axios from 'axios';
 
 const api = axios.create({
-  // 👇 换成你刚刚获取的 Pinggy 后端链接！记得保留 /api
-  baseURL: 'https://vfzoo-117-128-37-136.a.free.pinggy.link/api',
+  // 👇 换成你永不宕机的 Render 云端链接！
+  baseURL: 'https://club-match-backend.onrender.com/api',
   timeout: 10000,
 });
 
