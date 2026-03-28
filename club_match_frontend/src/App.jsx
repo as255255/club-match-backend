@@ -11,7 +11,6 @@ import ClubList from './pages/ClubList';
 import ClubDetail from './pages/ClubDetail';
 import ApplyForm from './pages/ApplyForm';
 import AdminDashboard from './pages/AdminDashboard';
-import ProtectedRoute from './components/ProtectedRoute'; // 确保你建了这文件
 
 import 'antd/dist/reset.css';
 
