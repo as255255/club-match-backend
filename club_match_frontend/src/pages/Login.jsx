@@ -41,7 +41,7 @@ const Login = () => {
   };
 
   // ==========================================
-  // 2. 处理登录逻辑
+  // 2. 处理登录逻辑 (已修复)
   // ==========================================
   const onLogin = async (values) => {
     setLoading(true);
@@ -51,19 +51,20 @@ const Login = () => {
         password: values.password,
       });
       
+      // 🌟 修复点 1：清理掉了多余的 res 变量，严格使用 response 和 values
       // 保存身份牌 (Token) 和基础信息
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('user_id', response.data.id);
       localStorage.setItem('user_name', response.data.name);
-      localStorage.setItem('user_role', values.role); // 存储前端选择的身份
+      localStorage.setItem('user_role', response.data.role || values.role); // 优先使用后端返回的真实身份
       
       message.success(`欢迎回来，${response.data.name}！`);
       
-      // 根据选择的身份，跳往不同的专属页面
-      if (values.role === 'admin') {
+      // 🌟 修复点 2：统一跳转路径，学生去 /clubs，部长去 /admin/dashboard
+      if (values.role === 'admin' || response.data.role === 'admin') {
         navigate('/admin/dashboard'); 
       } else {
-        navigate('/profile'); 
+        navigate('/clubs'); 
       }
       
     } catch (error) {

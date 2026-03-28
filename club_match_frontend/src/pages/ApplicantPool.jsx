@@ -14,6 +14,7 @@ const ApplicantPool = () => {
   }, []);
 
   const fetchApplicants = async () => {
+  if (!clubId || clubId === 'null' || clubId === 'undefined') return;
     try {
       const res = await api.get(`/applications/club/${clubId}`);
       setData(res.data);

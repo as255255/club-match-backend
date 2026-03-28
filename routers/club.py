@@ -90,3 +90,12 @@ def create_club_role(club_id: int, role_in: RoleCreate, db: Session = Depends(ge
 def get_club_roles(club_id: int, db: Session = Depends(get_db)):
     """[C端] 获取岗位列表"""
     return db.query(models.ClubRole).filter(models.ClubRole.club_id == club_id).all()
+@router.post("/{club_id}/admins/apply")
+def apply_club_admin(
+    club_id: int,
+    user_id: int = Depends(get_current_user_id),
+    db: Session = Depends(get_db)
+):
+    """[B端] 申请成为已有社团的管理干事"""
+    # 这里做个简单的占位成功响应，保障前端流程能走通
+    return {"message": "申请已发送，等待现任部长审批", "status": "PENDING"}

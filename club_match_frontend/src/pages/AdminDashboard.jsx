@@ -79,6 +79,7 @@ const AdminDashboard = () => {
   };
 
   const fetchApplicants = async () => {
+  if (!clubId || clubId === 'null' || clubId === 'undefined') return;
     try {
       const response = await api.get(`/applications/club/${clubId}`);
       setApplicants(response.data);
