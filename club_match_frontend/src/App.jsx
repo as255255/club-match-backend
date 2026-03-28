@@ -2,6 +2,8 @@ import React from 'react';
 import { BrowserRouter, Routes, Route, useNavigate, Navigate, useLocation } from 'react-router-dom';
 import { Menu, Button, ConfigProvider } from 'antd';
 import { LogoutOutlined, UserOutlined, CrownOutlined } from '@ant-design/icons';
+import ProtectedRoute from './components/ProtectedRoute';
+import ApplicantPool from './pages/ApplicantPool';
 
 // 页面组件引入
 import Login from './pages/Login';
