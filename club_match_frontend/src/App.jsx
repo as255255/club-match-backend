@@ -125,7 +125,14 @@ function App() {
                 <AdminDashboard />
               </ProtectedRoute>
             } />
-
+            <Route 
+          path="/admin/pool" 
+          element={
+          <ProtectedRoute allowedRoles={['admin']}>
+            <ApplicantPool /> 
+            </ProtectedRoute>
+                      } 
+                      />
             {/* 4. 默认跳转逻辑 */}
             <Route path="/" element={<Navigate to="/clubs" replace />} />
             <Route path="*" element={<Navigate to="/login" replace />} />

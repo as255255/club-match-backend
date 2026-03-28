@@ -50,7 +50,9 @@ def get_current_user(authorization: str = Header(None), db: Session = Depends(ge
         raise HTTPException(status_code=401, detail="登录已过期")
     except jwt.InvalidTokenError:
         raise HTTPException(status_code=401, detail="非法凭证")
-
+def get_current_user_id(authorization: str = Header(None), db: Session = Depends(get_db)):
+    user = get_current_user(authorization, db)
+    return user.id
 def get_current_user_id(authorization: str = Header(None), db: Session = Depends(get_db)):
     """
     这是一个兼容层，为了不让 club.py 等文件报错。
