@@ -50,7 +50,7 @@ class User(Base):
     bio = Column(Text)
     created_at = Column(TIMESTAMP, server_default=func.now())
     updated_at = Column(TIMESTAMP, server_default=func.now(), onupdate=func.now())
-
+    role = Column(String(20), default="student")
     # 关联关系
     applications = relationship("Application", back_populates="user")
     favorite_clubs = relationship("FavoriteClub", back_populates="user")

@@ -8,7 +8,7 @@ from routers import user, club, application
 from routers import club, user, application
 # 在数据库中创建表 (如果还没通过 SQL 脚本创建的话)
 # models.Base.metadata.create_all(bind=engine)
-# models.Base.metadata.drop_all(bind=engine)   # 🌟 第一秒：炸掉云端所有不合规的旧表
+models.Base.metadata.drop_all(bind=engine)   # 🌟 第一秒：炸掉云端所有不合规的旧表
 models.Base.metadata.create_all(bind=engine) # 🌟 第二秒：按照刚才修改好的大容量重新建表！
 def init_seed_data():
     db = SessionLocal()

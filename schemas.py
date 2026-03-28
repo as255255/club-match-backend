@@ -31,7 +31,8 @@ class UserBase(BaseModel):
 class UserCreate(BaseModel):
     student_id: str
     name: str
-    password: str  # 注册时必须传密码
+    password: str
+    role: str = "student"# 注册时必须传密码
 
 # 🌟 新增一个专门用来登录的 Schema
 class UserLogin(BaseModel):
