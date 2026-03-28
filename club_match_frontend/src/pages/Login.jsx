@@ -22,17 +22,18 @@ const Login = () => {
         student_id: values.student_id,
         name: values.name,
         password: values.password,
+        role: values.role, // 将注册身份发给后端
       });
       message.success('🎉 注册成功！请直接登录。');
       
-      // 注册成功后，自动把学号填入登录表单，并切换到登录 Tab
-      loginForm.setFieldsValue({ student_id: values.student_id });
+      // 注册成功后，自动把学号和身份填入登录表单，并切换到登录 Tab
+      loginForm.setFieldsValue({ student_id: values.student_id, role: values.role });
       setActiveTab('login');
     } catch (error) {
       if (error.response && error.response.status === 400) {
         message.warning(error.response.data.detail || '该学号已被注册！');
       } else {
-        message.error('注册失败，请检查网络');
+        message.error('注册失败，请检查网络（如果是云端可能在冷启动，请等30秒再试）');
       }
     } finally {
       setLoading(false);
@@ -62,7 +63,7 @@ const Login = () => {
       if (values.role === 'admin') {
         navigate('/admin/dashboard'); 
       } else {
-        navigate('/profile'); // 学生去填画像
+        navigate('/profile'); 
       }
       
     } catch (error) {
@@ -108,7 +109,14 @@ const Login = () => {
   // 视图：注册表单
   // ==========================================
   const renderRegisterForm = () => (
-    <Form name="register" onFinish={onRegister} size="large">
+    <Form name="register" onFinish={onRegister} size="large" initialValues={{ role: 'student' }}>
+      <Form.Item name="role" style={{ textAlign: 'center' }}>
+        <Radio.Group optionType="button" buttonStyle="solid">
+          <Radio.Button value="student">👨‍🎓 注册为新生</Radio.Button>
+          <Radio.Button value="admin">🏢 注册为管理员</Radio.Button>
+        </Radio.Group>
+      </Form.Item>
+
       <Form.Item name="student_id" rules={[{ required: true, message: '请输入你的学号/工号！' }]}>
         <Input prefix={<IdcardOutlined />} placeholder="请输入学号/工号" />
       </Form.Item>
@@ -121,7 +129,6 @@ const Login = () => {
         <Input.Password prefix={<LockOutlined />} placeholder="请设置一个强密码" />
       </Form.Item>
 
-      {/* 高级技巧：校验两次密码必须一致 */}
       <Form.Item 
         name="confirm" 
         dependencies={['password']}

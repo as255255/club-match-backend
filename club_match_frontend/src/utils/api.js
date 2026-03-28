@@ -3,7 +3,7 @@ import axios from 'axios';
 const api = axios.create({
   // 👇 换成你永不宕机的 Render 云端链接！
   baseURL: 'https://club-match-backend.onrender.com/api',
-  timeout: 10000,
+  timeout: 60000,
 });
 
 // 请求拦截器：只负责塞 Token
