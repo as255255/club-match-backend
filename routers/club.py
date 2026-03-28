@@ -33,7 +33,54 @@ def get_clubs(category: str = Query(None), db: Session = Depends(get_db)):
         query = query.filter(models.Club.category == category)
     return query.all()
 
+from sqlalchemy.orm import joinedload
+from algorithm import get_recommended_clubs
+from typing import Dict
 
+@router.get("/recommendations/smart", tags=["Recommendations"])
+def get_smart_recommendations(
+        top_n: int = 10,
+        user: models.User = Depends(get_current_user), # 获取当前登录的这个学生
+        db: Session = Depends(get_db)
+):
+    """[C端] 智能获取推荐社团列表 (基于余弦相似度)"""
+    # 1. 提取当前学生的画像标签
+    user_tags_orm = db.query(models.UserTag).options(joinedload(models.UserTag.tag)).filter(
+        models.UserTag.user_id == user.id).all()
+    user_tags_dict: Dict[str, float] = {ut.tag.name: float(ut.weight) for ut in user_tags_orm}
+
+    # 如果这个学生是个纯小白（还没填画像），直接推荐最新成立的社团
+    if not user_tags_dict:
+        clubs = db.query(models.Club).filter(models.Club.status == "APPROVED").order_by(
+            models.Club.created_at.desc()).limit(top_n).all()
+        return [{"club": club, "match_score": 0, "reason": "热门推荐"} for club in clubs]
+
+    # 2. 提取全校所有社团的画像特征
+    clubs = db.query(models.Club).options(
+        joinedload(models.Club.tags).joinedload(models.ClubTag.tag),
+        joinedload(models.Club.roles)
+    ).filter(models.Club.status == "APPROVED").all()
+
+    all_clubs_tags: Dict[int, Dict[str, float]] = {}
+    club_map = {}
+    for c in clubs:
+        all_clubs_tags[c.id] = {ct.tag.name: float(ct.weight) for ct in c.tags}
+        club_map[c.id] = c
+
+    # 3. 呼叫算法大脑，计算匹配度
+    recommendations = get_recommended_clubs(user_tags_dict, all_clubs_tags, top_n)
+
+    # 4. 把计算结果打包发给前端
+    result = []
+    for rec in recommendations:
+        club_info = club_map[rec["club_id"]]
+        result.append({
+            "club": club_info,
+            "match_score": rec["match_score"],
+            "reason": rec["reason"]
+        })
+
+    return result
 @router.get("/{club_id}", response_model=schemas.ClubResponse)
 def get_club_detail(club_id: int, db: Session = Depends(get_db)):
     club = db.query(models.Club).filter(models.Club.id == club_id).first()

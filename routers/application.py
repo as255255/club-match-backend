@@ -37,19 +37,25 @@ def get_club_applications_list(
     return crud.get_club_applications(db=db, club_id=club_id, skip=skip, limit=limit)
 
 
-@router.patch("/{application_id}/status", response_model=schemas.ApplicationResponse)
+# 1. 确保文件顶部有这个引入
+from pydantic import BaseModel
+
+# 2. 定义前端传过来的 JSON 数据结构
+class StatusUpdate(BaseModel):
+    status: str
+
+# 3. 替换掉你原来的 @router.patch 接口
+@router.put("/{application_id}/status", response_model=schemas.ApplicationResponse)
 def change_application_status(
         application_id: int,
-        status: str = Query(..., description="新的状态，如 INTERVIEWING, ACCEPTED, REJECTED"),
-        current_user_id: int = Depends(get_current_user_id),  # 保安校验登录
+        payload: StatusUpdate, # 🌟 接收 JSON Body 而不是 Query
+        current_user_id: int = Depends(get_current_user_id),
         db: Session = Depends(get_db)
 ):
     """
     [B端] 社团管理员更改某个申请的状态
     """
-    # (真实企业级项目里，这里还要查一下 current_user_id 是不是该 application_id 所属社团的管理员，为了演示我们就先直接放行)
-
-    updated_app = crud.update_application_status(db=db, application_id=application_id, new_status=status)
+    updated_app = crud.update_application_status(db=db, application_id=application_id, new_status=payload.status)
     if not updated_app:
         raise HTTPException(status_code=404, detail="找不到该报名记录")
 
