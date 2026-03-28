@@ -51,7 +51,13 @@ def get_current_user(authorization: str = Header(None), db: Session = Depends(ge
     except jwt.InvalidTokenError:
         raise HTTPException(status_code=401, detail="非法凭证")
 
-
+def get_current_user_id(authorization: str = Header(None), db: Session = Depends(get_db)):
+    """
+    这是一个兼容层，为了不让 club.py 等文件报错。
+    它调用新的 get_current_user 并只返回 ID。
+    """
+    user = get_current_user(authorization, db)
+    return user.id
 # ==========================================
 # 2. 注册接口 (支持角色区分)
 # ==========================================
