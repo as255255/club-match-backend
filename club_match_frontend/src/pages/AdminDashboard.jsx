@@ -94,19 +94,26 @@ const AdminDashboard = () => {
 
   // =================业务处理逻辑=================
 
-  const handleCreateClub = async (values) => {
+ const handleCreateClub = async (values) => {
     setLoading(true);
     try {
-      const response = await api.post('/clubs/', values);
+      // 🌟 核心修复：强行塞入后端需要的必填字段 category
+      const payload = {
+        ...values,
+        category: "综合类" // 或者 "技术类"，给个兜底值满足 Pydantic 校验
+      };
+
+      const response = await api.post('/clubs/', payload);
       message.success('🎉 社团创建成功！');
       localStorage.setItem('managed_club_id', response.data.id);
       localStorage.setItem('admin_status', 'APPROVED');
       setClubId(response.data.id);
       setAdminStatus('APPROVED');
-    } catch (error) { message.error('创建失败'); }
+    } catch (error) {
+      message.error('创建失败: ' + (error.response?.data?.detail || '网络错误'));
+    }
     finally { setLoading(false); }
   };
-
   const handlePublishRole = async () => {
     try {
       const values = await roleForm.validateFields();

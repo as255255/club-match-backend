@@ -12,7 +12,7 @@ router = APIRouter(prefix="/api/users", tags=["Users (用户模块)"])
 # ==========================================
 # 🔐 安全配置
 # ==========================================
-SECRET_KEY = "club_match_super_secret_key"
+SECRET_KEY = "club_match_super_secret_key_for_production_use_only_2026"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_DAYS = 7
 

@@ -11,18 +11,15 @@ from routers.user import get_current_user_id, get_current_user
 
 router = APIRouter(prefix="/api/clubs", tags=["Clubs"])
 
-
 # --- 岗位管理相关的模型 ---
 class QuestionItem(BaseModel):
     question_id: str
     title: str
 
-
 class RoleCreate(BaseModel):
     name: str
     requirements: str
     extra_questions: List[QuestionItem] = []
-
 
 # ================= 核心接口 =================
 
@@ -33,10 +30,7 @@ def get_clubs(category: str = Query(None), db: Session = Depends(get_db)):
         query = query.filter(models.Club.category == category)
     return query.all()
 
-from sqlalchemy.orm import joinedload
-from algorithm import get_recommended_clubs
-from typing import Dict
-
+# 🌟 核心修复 1：将静态路由（推荐接口）提到动态路由上方，并修正路径与前端彻底对齐
 @router.get("/recommendations/smart", tags=["Recommendations"])
 def get_smart_recommendations(
         top_n: int = 10,
@@ -81,13 +75,14 @@ def get_smart_recommendations(
         })
 
     return result
+
+# 🌟 核心修复 2：带有参数的动态路由老老实实放在静态路由下面，防止拦截
 @router.get("/{club_id}", response_model=schemas.ClubResponse)
 def get_club_detail(club_id: int, db: Session = Depends(get_db)):
     club = db.query(models.Club).filter(models.Club.id == club_id).first()
     if not club:
         raise HTTPException(status_code=404, detail="社团不存在")
     return club
-
 
 @router.post("/", response_model=schemas.ClubResponse)
 def create_club(
@@ -97,7 +92,6 @@ def create_club(
 ):
     """[B端] 创建社团"""
     return crud.create_club_with_owner(db=db, club=club, user_id=user_id)
-
 
 @router.put("/{club_id}", response_model=schemas.ClubResponse)
 def update_club(
@@ -117,7 +111,6 @@ def update_club(
     db.commit()
     return club
 
-
 @router.post("/{club_id}/roles")
 def create_club_role(club_id: int, role_in: RoleCreate, db: Session = Depends(get_db)):
     """[B端] 发布岗位"""
@@ -132,11 +125,11 @@ def create_club_role(club_id: int, role_in: RoleCreate, db: Session = Depends(ge
     db.refresh(new_role)
     return new_role
 
-
 @router.get("/{club_id}/roles")
 def get_club_roles(club_id: int, db: Session = Depends(get_db)):
     """[C端] 获取岗位列表"""
     return db.query(models.ClubRole).filter(models.ClubRole.club_id == club_id).all()
+
 @router.post("/{club_id}/admins/apply")
 def apply_club_admin(
     club_id: int,
