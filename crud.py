@@ -2,7 +2,8 @@ from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import desc
 import models
 import schemas
-
+from sqlalchemy.exc import IntegrityError
+from fastapi import HTTPException
 # ==========================================
 # 1. 用户模块 (User)
 # ==========================================
@@ -45,7 +46,6 @@ def get_club_by_id(db: Session, club_id: int):
 def create_application(db: Session, user_id: int, application: schemas.ApplicationCreate):
     """
     提交报名：需要同时写入 applications 表和 application_answers 表
-    使用事务保证一致性
     """
     try:
         # 1. 创建报名主记录
@@ -56,7 +56,7 @@ def create_application(db: Session, user_id: int, application: schemas.Applicati
             status="PENDING"
         )
         db.add(db_app)
-        db.flush() # flush 获取到自增的 db_app.id，但不真正提交到数据库
+        db.flush()  # flush 获取到自增的 db_app.id，但不真正提交到数据库
 
         # 2. 如果有补充问题，批量写入答案
         if application.answers:
@@ -73,11 +73,17 @@ def create_application(db: Session, user_id: int, application: schemas.Applicati
         db.commit()
         db.refresh(db_app)
         return db_app
-    except Exception as e:
-        # 发生任何异常，回滚所有操作，避免出现“报了名但没存答案”的脏数据
-        db.rollback()
-        raise e
 
+    except IntegrityError:
+        # 🌟 核心修复：捕获数据库唯一索引冲突，体面地返回 400 错误，彻底解决 CORS 幽灵报错！
+        db.rollback()
+        raise HTTPException(status_code=400, detail="您已经报过这个岗位啦，请勿重复提交！")
+
+    except Exception as e:
+        # 捕获其他未知错误
+        db.rollback()
+        print(f"报名接口发生未知错误: {e}")  # 在服务器后台打印具体错误
+        raise HTTPException(status_code=500, detail="服务器内部错误，请稍后再试")
 def get_user_applications(db: Session, user_id: int, skip: int = 0, limit: int = 20):
     """查询学生的报名记录（联合查询社团和岗位信息）"""
     return db.query(models.Application)\
