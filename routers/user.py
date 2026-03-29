@@ -6,6 +6,7 @@ from typing import List
 import crud, schemas, models
 from database import get_db
 from passlib.context import CryptContext
+from pydantic import BaseModel
 
 router = APIRouter(prefix="/api/users", tags=["Users (用户模块)"])
 
@@ -50,9 +51,8 @@ def get_current_user(authorization: str = Header(None), db: Session = Depends(ge
         raise HTTPException(status_code=401, detail="登录已过期")
     except jwt.InvalidTokenError:
         raise HTTPException(status_code=401, detail="非法凭证")
-def get_current_user_id(authorization: str = Header(None), db: Session = Depends(get_db)):
-    user = get_current_user(authorization, db)
-    return user.id
+
+
 def get_current_user_id(authorization: str = Header(None), db: Session = Depends(get_db)):
     """
     这是一个兼容层，为了不让 club.py 等文件报错。
@@ -60,6 +60,8 @@ def get_current_user_id(authorization: str = Header(None), db: Session = Depends
     """
     user = get_current_user(authorization, db)
     return user.id
+
+
 # ==========================================
 # 2. 注册接口 (支持角色区分)
 # ==========================================
@@ -118,10 +120,15 @@ def get_all_tags(db: Session = Depends(get_db)):
     return db.query(models.Tag).filter(models.Tag.is_active == True).all()
 
 
+# 定义接收前端对象数据的 Schema
+class TagUpdate(BaseModel):
+    tag_ids: List[int]
+
+# 🌟 干净的路由：只保留这个正确的版本
 @router.post("/{user_id}/tags")
-def update_user_tags(user_id: int, tag_ids: List[int], db: Session = Depends(get_db)):
+def update_user_tags(user_id: int, payload: TagUpdate, db: Session = Depends(get_db)):
     db.query(models.UserTag).filter(models.UserTag.user_id == user_id).delete()
-    for tid in tag_ids:
+    for tid in payload.tag_ids:
         db.add(models.UserTag(user_id=user_id, tag_id=tid))
     db.commit()
     return {"message": "画像更新成功"}

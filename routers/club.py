@@ -111,24 +111,40 @@ def update_club(
     db.commit()
     return club
 
+
 @router.post("/{club_id}/roles")
 def create_club_role(club_id: int, role_in: RoleCreate, db: Session = Depends(get_db)):
     """[B端] 发布岗位"""
-    new_role = models.ClubRole(
+    # 🌟 修复点 1：使用正统的 RecruitmentRole 表，并将前端的 name 映射到后端的 role_name
+    new_role = models.RecruitmentRole(
         club_id=club_id,
-        name=role_in.name,
+        role_name=role_in.name,
         requirements=role_in.requirements,
-        extra_questions=[q.model_dump() for q in role_in.extra_questions]
+        extra_questions=[q.model_dump() for q in role_in.extra_questions],
+        status="OPEN"
     )
     db.add(new_role)
     db.commit()
     db.refresh(new_role)
     return new_role
 
+
 @router.get("/{club_id}/roles")
 def get_club_roles(club_id: int, db: Session = Depends(get_db)):
     """[C端] 获取岗位列表"""
-    return db.query(models.ClubRole).filter(models.ClubRole.club_id == club_id).all()
+    # 🌟 修复点 2：从正统的 RecruitmentRole 表里去查询
+    roles = db.query(models.RecruitmentRole).filter(models.RecruitmentRole.club_id == club_id).all()
+
+    # 🌟 修复点 3：为了不让前端大改代码，这里手动把 role_name 包装成前端期望的 name 字段
+    return [
+        {
+            "id": r.id,
+            "name": r.role_name,
+            "requirements": r.requirements,
+            "extra_questions": r.extra_questions
+        }
+        for r in roles
+    ]
 
 @router.post("/{club_id}/admins/apply")
 def apply_club_admin(
