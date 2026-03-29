@@ -90,6 +90,9 @@ def register_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
 # ==========================================
 # 3. 登录接口 (返回 Role 供前端跳转)
 # ==========================================
+# ==========================================
+# 3. 登录接口 (返回 Role 和管理的 ClubID)
+# ==========================================
 @router.post("/login")
 def login_user(user: schemas.UserLogin, db: Session = Depends(get_db)):
     db_user = crud.get_user_by_student_id(db, student_id=user.student_id)
@@ -103,14 +106,20 @@ def login_user(user: schemas.UserLogin, db: Session = Depends(get_db)):
     payload = {"sub": str(db_user.id), "exp": expire}
     token = jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
 
-    # 🌟 核心修复：返回 role 字段，前端才能根据它判断谁是部长
+    # 🌟 核心修复：如果是管理员，去 club_admins 表里查一下他负责的社团 ID
+    managed_club_id = None
+    if db_user.role == 'admin':
+        club_admin = db.query(models.ClubAdmin).filter(models.ClubAdmin.user_id == db_user.id).first()
+        if club_admin:
+            managed_club_id = club_admin.club_id
+
     return {
         "id": db_user.id,
         "name": db_user.name,
         "role": db_user.role,
-        "token": token
+        "token": token,
+        "managed_club_id": managed_club_id  # 👈 把这个极其重要的 ID 传给前端
     }
-
 
 # ==========================================
 # 4. 标签/画像相关 (保持精简)

@@ -44,8 +44,8 @@ const ClubDetail = () => {
         actions={[
           // 🚦 权限感知按钮逻辑
           userRole === 'admin' ? (
-            <Button type="primary" danger icon={<EditOutlined />} onClick={() => message.info('管理功能开发中...')}>
-              编辑社团资料 (部长权限)
+            <Button type="primary" danger icon={<EditOutlined />} onClick={() => navigate('/admin/dashboard')}>
+              进入社团管理后台
             </Button>
           ) : (
             <Button type="primary" size="large" icon={<CheckCircleOutlined />} onClick={() => {

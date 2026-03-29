@@ -57,7 +57,9 @@ const Login = () => {
       localStorage.setItem('user_id', response.data.id);
       localStorage.setItem('user_name', response.data.name);
       localStorage.setItem('user_role', response.data.role || values.role); // 优先使用后端返回的真实身份
-      
+      if (response.data.managed_club_id) {
+        localStorage.setItem('managed_club_id', response.data.managed_club_id);
+      }
       message.success(`欢迎回来，${response.data.name}！`);
       
       // 🌟 修复点 2：统一跳转路径，学生去 /clubs，部长去 /admin/dashboard
