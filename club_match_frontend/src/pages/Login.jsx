@@ -167,6 +167,13 @@ const Login = () => {
         <div style={{ textAlign: 'center', marginBottom: '20px' }}>
           <Title level={3}>🎓 智能社团招新平台</Title>
           <Text type="secondary">安全、高效的一站式校园招新系统</Text>
+          
+          {/* 🌟 核心新增：网络波动温馨提示 */}
+          <div style={{ marginTop: '10px' }}>
+            <Text type="warning" style={{ fontSize: '13px' }}>
+              💡 温馨提示：如果显示网络有问题或请求超时，麻烦开启代理 (翻墙) 后重试，谢谢！
+            </Text>
+          </div>
         </div>
 
         <Tabs 
