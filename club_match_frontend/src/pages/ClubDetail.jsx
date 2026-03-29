@@ -48,8 +48,10 @@ const ClubDetail = () => {
               编辑社团资料 (部长权限)
             </Button>
           ) : (
-            <Button type="primary" size="large" icon={<CheckCircleOutlined />} onClick={() => navigate(`/apply/${id}`)}>
-              立即填写报名表
+            <Button type="primary" size="large" icon={<CheckCircleOutlined />} onClick={() => {
+                message.info('💡 请在社团大厅点击该社团的“一键报名”，选择你想投递的具体岗位！');
+                navigate('/clubs');
+            }}>
             </Button>
           )
         ]}
