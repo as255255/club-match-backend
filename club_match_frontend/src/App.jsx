@@ -12,6 +12,7 @@ import ClubDetail from './pages/ClubDetail';
 import ApplyForm from './pages/ApplyForm';
 import AdminDashboard from './pages/AdminDashboard';
 import InterestProfile from './pages/InterestProfile';
+import MyApplications from './pages/MyApplications';
 import 'antd/dist/reset.css';
 
 // ==========================================
@@ -112,6 +113,11 @@ function App() {
             <Route path="/interest" element={
               <ProtectedRoute allowedRoles={['student']}>
                 <InterestProfile />
+              </ProtectedRoute>
+            } />
+            <Route path="/my-applications" element={
+              <ProtectedRoute allowedRoles={['student']}>
+                <MyApplications />
               </ProtectedRoute>
             } />
             <Route path="/clubs" element={
