@@ -64,7 +64,7 @@ const Login = () => {
       if (values.role === 'admin' || response.data.role === 'admin') {
         navigate('/admin/dashboard'); 
       } else {
-        navigate('/clubs'); 
+        navigate('/interest');
       }
       
     } catch (error) {

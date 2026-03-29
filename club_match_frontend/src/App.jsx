@@ -11,7 +11,7 @@ import ClubList from './pages/ClubList';
 import ClubDetail from './pages/ClubDetail';
 import ApplyForm from './pages/ApplyForm';
 import AdminDashboard from './pages/AdminDashboard';
-
+import InterestProfile from './pages/InterestProfile';
 import 'antd/dist/reset.css';
 
 // ==========================================
@@ -34,6 +34,7 @@ const MainLayout = ({ children }) => {
   // 🌟 C端菜单 (学生)
   const studentMenuItems = [
     { key: '/clubs', label: '发现社团', onClick: () => navigate('/clubs') },
+    { key: '/interest', label: '更新画像', onClick: () => navigate('/interest') },
     { key: '/my-applications', label: '我的报名', onClick: () => navigate('/my-applications') },
   ];
 
@@ -108,6 +109,11 @@ function App() {
             <Route path="/login" element={<Login />} />
 
             {/* 2. 学生路由 (C端) */}
+            <Route path="/interest" element={
+              <ProtectedRoute allowedRoles={['student']}>
+                <InterestProfile />
+              </ProtectedRoute>
+            } />
             <Route path="/clubs" element={
               <ProtectedRoute allowedRoles={['student']}>
                 <ClubList />
